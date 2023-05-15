@@ -54,7 +54,12 @@ AMonsterShooterCharacter::AMonsterShooterCharacter()
 void AMonsterShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	/*
+	 * SnapToTargetNotIncludingScale: This rule locks the position and rotation of the object to be linked to the
+	 * target object, but does not affect its size. That is, the inserted object does not adapt to the size of
+	 * the target object, but retains its own size.
+	 */
 	GunMesh->AttachToComponent(HandsMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		TEXT("GripPoint"));
@@ -73,6 +78,18 @@ void AMonsterShooterCharacter::SetupPlayerInputComponent(UInputComponent* Player
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMonsterShooterCharacter::OnFire);
+	
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMonsterShooterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMonsterShooterCharacter::MoveRight);
+
+	PlayerInputComponent->BindAxis("Turn", this, &AMonsterShooterCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &AMonsterShooterCharacter::LookAtRate);
+
+
 }
 
 void AMonsterShooterCharacter::OnFire()
@@ -82,17 +99,28 @@ void AMonsterShooterCharacter::OnFire()
 
 void AMonsterShooterCharacter::MoveForward(float Value)
 {
+	if(Value!=0.f)
+	{
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
 }
 
 void AMonsterShooterCharacter::MoveRight(float Value)
 {
+	if(Value!=0.f)
+	{
+		AddMovementInput(GetActorRightVector(), Value);
+	}
 }
 
 void AMonsterShooterCharacter::TurnAtRate(float Rate)
 {
+	// GetWorld()->GetDeltaSeconds() is for smooth turns
+	AddControllerYawInput(Rate * TurnRate * GetWorld()->GetDeltaSeconds()); 
 }
 
 void AMonsterShooterCharacter::LookAtRate(float Rate)
 {
+	AddControllerPitchInput(Rate * LookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
