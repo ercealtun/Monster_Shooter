@@ -7,6 +7,12 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 
+#include "Projectile.h"
+#include "Animation/AnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "MonsterShooterGameMode.h"
+
 // Sets default values
 AMonsterShooterCharacter::AMonsterShooterCharacter()
 {
@@ -63,6 +69,10 @@ void AMonsterShooterCharacter::BeginPlay()
 	GunMesh->AttachToComponent(HandsMesh,
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		TEXT("GripPoint"));
+
+	World = GetWorld();
+
+	AnimInstance = HandsMesh->GetAnimInstance();
 	
 }
 
@@ -94,7 +104,33 @@ void AMonsterShooterCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 void AMonsterShooterCharacter::OnFire()
 {
-	
+	if(World != NULL)
+	{
+		SpawnRotation = GetControlRotation();
+
+		// Actually, MuzzleLocation is defined, but we are performing a security operation here
+		SpawnLocation = ((MuzzleLocation != nullptr) ?
+			MuzzleLocation->GetComponentLocation() :
+			GetActorLocation())	+ SpawnRotation.RotateVector(GunOffset);
+
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+		World->SpawnActor<AProjectile>(Projectile,
+			SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+		if(FireSound != NULL)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+
+		}
+
+		if(FireAnimation != NULL && AnimInstance != NULL)
+		{
+			AnimInstance->Montage_Play(FireAnimation, 1.0f);
+		}
+	}
 }
 
 void AMonsterShooterCharacter::MoveForward(float Value)
