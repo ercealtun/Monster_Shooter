@@ -33,5 +33,50 @@ public:
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& Hit);
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = Enemy)
+	class UAIPerceptionComponent* AIPerComp;
 
+	// To enable sight detection
+	UPROPERTY(VisibleDefaultsOnly, Category = Enemy)
+	class UAISenseConfig_Sight* SightConfig;
+
+	// To inform if any actors are detected by UAIPerceptionComponent
+	UFUNCTION()
+	void OnSensed(const TArray<AActor*> &UpdatedActors);
+
+	UPROPERTY(VisibleAnywhere, Category=Movement)
+	FRotator EnemyRotation;
+
+	/*
+	 * The enemy is going to be able to go and try to attack the player,
+	 * but if he doesn't find the player, then he is going to back to base location
+	 */
+	UPROPERTY(VisibleAnywhere, Category=Movement)
+	FVector BaseLocation;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category=Movement)
+	FVector CurrentVelocity;
+
+	UPROPERTY(VisibleAnywhere, Category=Movement)
+	float MovementSpeed;
+
+	void SetNewRotation(FVector TargetPosition, FVector CurrentPosition);
+
+	bool bBackToBaseLocation;
+	FVector NewLocation;
+	float DistanceSquared;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Health = 100.f;
+
+	UPROPERTY(EditAnywhere)
+	float DamageValue = 5.f;
+
+public:
+	void DealDamage(float DamageAmount);
+
+
+
+	
 };

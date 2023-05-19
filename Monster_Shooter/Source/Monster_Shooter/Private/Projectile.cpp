@@ -24,7 +24,10 @@ AProjectile::AProjectile()
 	ProjectileMovement->UpdatedComponent = CollisionSphere;
 	ProjectileMovement->InitialSpeed = 3000.f;
 	ProjectileMovement->MaxSpeed  = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true; // Projectile will rotate according to velocity
+
+	// Projectile will rotate according to velocity
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	
 	ProjectileMovement->bShouldBounce = true;
 
 	// If we don't hit anything after 3 seconds, the projectile will be destroyed
