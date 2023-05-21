@@ -74,6 +74,12 @@ public:
 	class UWorld* World;
 
 	FRotator SpawnRotation;
-	FVector SpawnLocation; 
+	FVector SpawnLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Health = 100.f;
+
+public:
+	void DealDamage(float DamageAmount);
 
 };
